@@ -1,0 +1,17 @@
+/build/
+/power-hook/build/
+/power-hook/deps/
+*.jks
+*.keystore
+*.apk
+*.apk.idsig
+*.log
+__pycache__/
+*.pyc
+local.properties
+.env
+.env.*
+device-check/
+runs/
+services.jar
+framework-res.apk

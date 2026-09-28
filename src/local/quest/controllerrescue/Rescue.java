@@ -21,7 +21,7 @@ final class Rescue {
             return false;
         }
         if(last>0&&(now<last||now-last<COOLDOWN)){
-            message(c,"Please wait: repairs have a 120-second cooldown.");
+            message(c,"Cooldown until " + (last + COOLDOWN));
             return false;
         }
         busy=true;

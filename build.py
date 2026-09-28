@@ -40,6 +40,6 @@ with zipfile.ZipFile(BUILD / "unsigned.apk", "a", zipfile.ZIP_DEFLATED) as apk:
 run([TOOLS / "zipalign", "-f", "4", BUILD / "unsigned.apk", BUILD / "aligned.apk"])
 run([TOOLS / "apksigner", "sign", "--ks", KEY, "--ks-key-alias", ALIAS,
      "--ks-pass", "env:RESCUE_KEY_PASSWORD", "--key-pass", "env:RESCUE_KEY_PASSWORD",
-     "--out", BUILD / "controller-rescue-0.2.0.apk", BUILD / "aligned.apk"])
-run([TOOLS / "apksigner", "verify", "--verbose", BUILD / "controller-rescue-0.2.0.apk"])
-print(hashlib.sha256((BUILD / "controller-rescue-0.2.0.apk").read_bytes()).hexdigest())
+     "--out", BUILD / "controller-rescue-0.2.1.apk", BUILD / "aligned.apk"])
+run([TOOLS / "apksigner", "verify", "--verbose", BUILD / "controller-rescue-0.2.1.apk"])
+print(hashlib.sha256((BUILD / "controller-rescue-0.2.1.apk").read_bytes()).hexdigest())

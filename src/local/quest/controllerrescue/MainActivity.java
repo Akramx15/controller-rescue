@@ -19,6 +19,9 @@ public class MainActivity extends Activity {
     private static final int BACKGROUND = Color.rgb(16, 22, 20);
     private static final int MINT = Color.rgb(195, 243, 210);
     private static final int SURFACE = Color.rgb(28, 40, 33);
+    private final android.os.Handler refreshHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private boolean visible;
+    private final Runnable cooldownTick = this::refresh;
     private TextView status;
     private TextView testBadge;
     private final SharedPreferences.OnSharedPreferenceChangeListener listener =
@@ -155,18 +158,26 @@ public class MainActivity extends Activity {
     }
 
     private void refresh() {
-        if (status != null) status.setText(UiStatus.friendly(prefs().getString("status", "")));
+        refreshHandler.removeCallbacks(cooldownTick);
+        String raw = prefs().getString("status", "");
+        long deadline = UiStatus.cooldownDeadline(raw, prefs().getLong("last", 0));
+        long now = System.currentTimeMillis();
+        if (status != null) status.setText(deadline > 0 ? UiStatus.remaining(deadline, now) : UiStatus.friendly(raw));
+        if (visible && deadline > now) refreshHandler.postDelayed(cooldownTick, 1000);
         if (testBadge != null) testBadge.setVisibility(prefs().getBoolean("test", false) ?
                 android.view.View.VISIBLE : android.view.View.GONE);
     }
 
     @Override public void onStart() {
         super.onStart();
+        visible = true;
         prefs().registerOnSharedPreferenceChangeListener(listener);
         refresh();
     }
 
     @Override public void onStop() {
+        visible = false;
+        refreshHandler.removeCallbacks(cooldownTick);
         prefs().unregisterOnSharedPreferenceChangeListener(listener);
         super.onStop();
     }

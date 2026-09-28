@@ -2,7 +2,23 @@ package local.quest.controllerrescue;
 
 /** Keeps diagnostics out of the main page; original messages stay private. */
 final class UiStatus {
+    static long cooldownDeadline(String raw, long last) {
+        if (raw.startsWith("Cooldown until ")) {
+            try { return Long.parseLong(raw.substring("Cooldown until ".length())); }
+            catch (NumberFormatException invalid) { return 0; }
+        }
+        return raw.contains("120-second") && last > 0 ? last + 120000 : 0;
+    }
+
+    static String remaining(long deadline, long now) {
+        long seconds = Math.max(0, (deadline - now + 999) / 1000);
+        if (seconds == 0) return "Ready when you need me.";
+        return String.format(java.util.Locale.US, "Try again in %d:%02d.", seconds / 60, seconds % 60);
+    }
+
     static String friendly(String raw) {
+        long deadline = cooldownDeadline(raw, 0);
+        if (deadline > 0) return remaining(deadline, System.currentTimeMillis());
         if (raw.equals("Enabling volume access")) return "Enabling volume shortcuts…";
         if (raw.equals("Volume access enabled; test delivery")) return "Volume access enabled. Try Test shortcuts.";
         if (raw.equals("Volume access saved; framework pending")) return "Access saved. Waiting for Android; try again shortly.";

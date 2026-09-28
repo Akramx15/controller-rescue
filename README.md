@@ -18,9 +18,11 @@ This is a recovery tool, not a proven fix for the underlying firmware fault. The
 - Double Volume Down.
 - Double Power, through the optional LSPosed/Vector companion.
 
+Both volume shortcuts have been verified on a headset. The power companion is experimental; physical validation is still pending.
+
 Volume shortcuts require the app's Accessibility service. In Settings, select **Enable volume shortcuts** and allow root access. The app enables its own service directly while keeping existing accessibility services enabled. Then switch on the volume shortcuts you want. It observes volume keys without consuming them, so normal volume changes still happen. It does not request screen-content access.
 
-The power companion defers single-press sleep briefly and observes two quick completed presses. It waits another 500 ms without a third press before requesting recovery. The module checks the tested system build and conflicting power-key features before changing behavior. It is scoped only to **System Framework / android**. See [power-hook](power-hook/) for setup and limitations.
+The power companion defers single-press sleep briefly and observes two quick completed presses. It waits another 500 ms without a third press before requesting recovery. The module checks the tested system build and conflicting power-key features before changing behavior. It is scoped only to **System Framework / Android System**. See [power-hook](power-hook/) for setup and limitations.
 
 Shortcuts are opt-in. A test mode checks the keys without running a repair. Repairs have a two-minute cooldown and are never triggered simply because a controller is asleep or searching.
 

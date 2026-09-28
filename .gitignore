@@ -1,4 +1,5 @@
 /build/
+/deps/
 /power-hook/build/
 /power-hook/deps/
 *.jks

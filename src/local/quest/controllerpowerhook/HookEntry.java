@@ -19,7 +19,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
-/** Observes native power gestures; all privileged repair work stays in the companion. */
+/** Observes native power gestures; all privileged repair work stays in the app service. */
 public final class HookEntry implements IXposedHookLoadPackage {
     private static final String TAG = "[ControllerRescuePower] ";
     private static final String SETTING = "controller_rescue_double_power";
@@ -30,6 +30,8 @@ public final class HookEntry implements IXposedHookLoadPackage {
     private static Class<?> detectorClass;
     private static long settingReadAt = -1;
     private static boolean cachedEnabled;
+    private static long legacyReadAt = -1;
+    private static boolean legacyInstalled = true;
     private static final PowerSequence sequence = new PowerSequence();
 
     @Override public synchronized void handleLoadPackage(LoadPackageParam loaded) {
@@ -135,15 +137,12 @@ public final class HookEntry implements IXposedHookLoadPackage {
             Intent request = new Intent(ACTION).setComponent(new ComponentName(
                     "local.quest.controllerrescue", "local.quest.controllerrescue.RecoveryService"));
             PackageManager packages = context.getPackageManager();
-            if (packages.checkSignatures("local.quest.controllerpowerhook",
-                    "local.quest.controllerrescue") != PackageManager.SIGNATURE_MATCH) {
-                state("blocked: companion signature mismatch");
-                return;
-            }
             ServiceInfo service = packages.getServiceInfo(request.getComponent(), 0);
-            if (!service.enabled || !service.applicationInfo.enabled || !service.exported
+            if (!"local.quest.controllerrescue".equals(service.packageName)
+                    || !"local.quest.controllerrescue.RecoveryService".equals(service.name)
+                    || !service.enabled || !service.applicationInfo.enabled || !service.exported
                     || !"android.permission.DEVICE_POWER".equals(service.permission)) {
-                state("blocked: companion service contract mismatch");
+                state("blocked: recovery service contract mismatch");
                 return;
             }
             // Slow package lookups precede the final cancellation point, so an intervening
@@ -172,6 +171,11 @@ public final class HookEntry implements IXposedHookLoadPackage {
         try {
             Context context = (Context) XposedHelpers.getObjectField(pwm, "mContext");
             if (context == null) return null;
+            if (hasLegacyModule(context)) {
+                sequence.cancel();
+                state("blocked: remove old Controller Rescue Power and reboot");
+                return null;
+            }
             boolean enabled = enabled(context);
             if (!enabled) { sequence.cancel(); state("disabled"); return null; }
             boolean early = XposedHelpers.getBooleanField(pwm, "mAllKeysAreSystemKeys")
@@ -206,6 +210,22 @@ public final class HookEntry implements IXposedHookLoadPackage {
             state("state unavailable: " + error.getClass().getSimpleName());
             return null;
         }
+    }
+
+    /** Old and unified modules have independent classloaders and must not both hook power. */
+    private static synchronized boolean hasLegacyModule(Context context) {
+        long now = SystemClock.elapsedRealtime();
+        if (legacyReadAt < 0 || now - legacyReadAt >= 5000) {
+            legacyInstalled = true;
+            try {
+                context.getPackageManager().getPackageInfo("local.quest.controllerpowerhook", 0);
+            } catch (PackageManager.NameNotFoundException absent) {
+                legacyInstalled = false;
+            }
+            // Other lookup errors propagate to eligible's fail-closed handler.
+            legacyReadAt = now;
+        }
+        return legacyInstalled;
     }
 
     private static synchronized boolean enabled(Context context) {

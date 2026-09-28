@@ -88,10 +88,11 @@ public class MainActivity extends Activity {
                 prefs().edit().putBoolean("shortcutDown", enabled).apply());
         panel.addView(down);
         Switch power = new Switch(this);
-        power.setText("Double Power · LSPosed add-on");
+        power.setText("Double Power · LSPosed");
         power.setChecked(prefs().getBoolean("powerShortcut", false));
         bindPowerToggle(power);
         panel.addView(power);
+        panel.addView(text("For Power: enable Controller Rescue in LSPosed, select System Framework, then reboot.", 14, Color.LTGRAY));
         Button accessibility = button("Enable volume shortcuts", false);
         accessibility.setOnClickListener(view -> {
             accessibility.setEnabled(false);

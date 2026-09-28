@@ -1,50 +1,38 @@
 # Controller Rescue
 
-Controllers taking a break? Bring them back.
+Controllers on a break? Bring them back.
 
-A small recovery tool for rooted Meta Quest 3 headsets. One repair button, a connection check, and optional double-press shortcuts, with a quiet interface and short, friendly messages.
+One small app for rooted Quest 3. One button to recover the connection.
 
-[Download APKs](https://github.com/Akramx15/controller-rescue/releases)
+**[Download the APK](https://github.com/Akramx15/controller-rescue/releases)**
 
-## What it does
+## A little help
 
-Restarts the existing sensor service that recovered both controllers during a recorded connection failure. Pairing and firmware stay intact. Tracking pauses briefly while the shared service restarts.
+- Recover your controllers without clearing pairing.
+- Check whether both are connected.
+- Double-press Volume Up, Volume Down, or Power to run a repair.
+- Test shortcuts without running a repair.
 
-This is a recovery tool, not a proven fix for the underlying firmware fault. The current build is restricted to the tested Quest OS build **52433670036000520**. Root access must be available and granted to the app.
+## Set it up
 
-## Shortcuts
+Install **Controller Rescue** and grant it root access.
 
-- Double Volume Up.
-- Double Volume Down.
-- Double Power, through the optional LSPosed/Vector companion.
+For volume shortcuts, open **Settings → Enable volume shortcuts**, then choose your buttons.
 
-All three physical shortcut gestures have been verified on the tested headset. Double Power kept the screen awake and dispatched recovery. The optional power companion remains tied to the specific firmware listed above.
+For Power, enable **Controller Rescue** in LSPosed/Vector for **System Framework / Android System**, reboot the headset normally, then turn on **Double Power** in the app. Two quick presses keep the screen awake and request recovery. LSPosed is only needed for this shortcut.
 
-Volume shortcuts require the app's Accessibility service. In Settings, select **Enable volume shortcuts** and allow root access. The app enables its own service directly while keeping existing accessibility services enabled. Then switch on the volume shortcuts you want. It observes volume keys without consuming them, so normal volume changes still happen. It does not request screen-content access.
+**Everything is in one APK.** If you used v0.2.x, turn off Double Power, disable and uninstall **Controller Rescue · Power**, then activate the updated app in LSPosed and reboot normally before turning Power back on. Your main app settings stay with you. [Power setup details](docs/power.md).
 
-The power companion defers single-press sleep briefly and observes two quick completed presses. It waits another 500 ms without a third press before requesting recovery. The module checks the tested system build and conflicting power-key features before changing behavior. It is scoped only to **System Framework / Android System**. See [power-hook](power-hook/) for setup and limitations.
+## Before you tap
 
-Shortcuts are opt-in. A test mode checks the keys without running a repair. Repairs have a two-minute cooldown, with the remaining time shown when another repair is requested. They are never triggered simply because a controller is asleep or searching.
+Requires root. Currently restricted to Quest 3 on Quest OS build **52433670036000520**.
 
-## Root and privacy
+Recovery briefly pauses tracking. It restarts the existing sensor service; it does not change firmware or clear pairing. This is a recovery tool, not a proven cure for the underlying fault.
 
-Root is used for enabling shortcut settings, fixed service-state checks, diagnostic dumps and the sensor-service restart. The app does not accept arbitrary shell commands, download firmware, clear pairing, or automatically reboot the headset.
+Repairs have a two-minute cooldown, with a countdown when you try again early. Nothing runs automatically when the timer ends. If verification is interrupted, use **Check connection**.
 
-Up to ten recovery logs stay in the app's private storage. There is no network permission, analytics or upload endpoint. If the app is stopped during recovery, it reports that verification was interrupted instead of silently trying again.
+No network permission, analytics, or uploads. Up to ten recovery logs stay on your headset.
 
-## Build
+[Build from source](docs/build.md) · [MIT license](LICENSE)
 
-Sources use Java and the Android SDK directly, without Gradle. Android API 34, Build Tools 34.0.0, a JDK and Python 3.9+ are required.
-
-Set `ANDROID_HOME` to your SDK directory, `RESCUE_KEYSTORE` to an existing signing keystore **outside** this repository, and `RESCUE_KEY_PASSWORD` to its password. Set `RESCUE_KEY_ALIAS` to the key alias if it differs from `controller-rescue-local`. Both APKs must use the same certificate.
-
-```sh
-python3 build.py
-python3 power-hook/build.py
-```
-
-APKs are written to `build/` and `power-hook/build/`. The optional companion downloads a pinned, compile-only Xposed API dependency on its first build. It is not included in the APK.
-
-Device logs, proprietary system binaries and signing keys are excluded from this repository.
-
-MIT licensed. Unofficial; not affiliated with Meta.
+Unofficial. Not affiliated with Meta. Controllers deserve shorter breaks.

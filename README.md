@@ -4,7 +4,7 @@ Controllers taking a break? Bring them back.
 
 A small recovery tool for rooted Meta Quest 3 headsets. One repair button, a connection check, and optional double-press shortcuts, with a quiet interface and short, friendly messages.
 
-[Download APKs](https://github.com/Akramx15/controller-rescue/releases/latest)
+[Download APKs](https://github.com/Akramx15/controller-rescue/releases)
 
 ## What it does
 
